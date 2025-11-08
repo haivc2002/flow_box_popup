@@ -55,7 +55,7 @@ Defines the visual styling for both the popup and the trigger widget.
 ## Demo
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/haivc2002/flow_box_popup/main/demo/demo_animation.gif"
+  <img src="https://raw.githubusercontent.com/haivc2002/flow_box_popup/main/demo/demo.gif"
        width="300"
        style="border-radius:12px;" />
   <br><b>Auto-loop demo animation</b>
