@@ -1,3 +1,4 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+- Initial release of FlowBoxPopup.
+- Support for custom popup decoration, animation curve, and barrier color.
