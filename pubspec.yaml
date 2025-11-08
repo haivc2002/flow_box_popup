@@ -1,7 +1,9 @@
 name: flow_box_popup
-description: "A new Flutter package project."
+description: "A smooth popup box with fluid animations. It auto-adjusts its height to fit content and slides up gracefully when the virtual keyboard appears."
 version: 0.0.1
-homepage:
+homepage: https://github.com/haivc2002/flow_box_popup
+repository: https://github.com/haivc2002/flow_box_popup
+issue_tracker: https://github.com/haivc2002/flow_box_popup/issues
 
 environment:
   sdk: ^3.9.2
