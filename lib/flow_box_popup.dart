@@ -88,6 +88,15 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
   }
 
   @override
+  void didUpdateWidget(covariant FlowBoxPopup oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.duration != widget.duration) {
+      _controller.duration = widget.duration;
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     _closePopup(immediate: true);
@@ -138,8 +147,7 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
     );
 
     final double popupHeight =
-    (contentSize.height + _popDecoration.padding.vertical)
-        .clamp(0, maxHeight);
+    (contentSize.height).clamp(0, maxHeight);
     final popupWidth = maxWidth;
 
     final targetPos = Offset(
@@ -195,8 +203,14 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
   }
 
   @override
-  Widget build(BuildContext context) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _resolveDecorations(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // _resolveDecorations(context);
 
     return PopScope(
       canPop: !_isChildHidden,
@@ -208,19 +222,21 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
         onTap: _showPopup,
         child: Opacity(
           opacity: _isChildHidden ? 0 : 1,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: _childDecoration.color,
-              borderRadius: _childDecoration.radius,
-              boxShadow: [_childDecoration.boxShadows],
-              border: _childDecoration.border,
-            ),
-            child: Padding(
-              padding: _childDecoration.padding,
-              child: AnimatedOpacity(
-                opacity: _isChildHidden ? 0 : 1,
-                duration: const Duration(milliseconds: 150),
-                child: widget.child,
+          child: ClipRRect(
+            borderRadius: _childDecoration.radius,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: _childDecoration.color,
+                boxShadow: [_childDecoration.boxShadows],
+                border: _childDecoration.border,
+              ),
+              child: Padding(
+                padding: _childDecoration.padding,
+                child: AnimatedOpacity(
+                  opacity: _isChildHidden ? 0 : 1,
+                  duration: const Duration(milliseconds: 150),
+                  child: widget.child,
+                ),
               ),
             ),
           ),

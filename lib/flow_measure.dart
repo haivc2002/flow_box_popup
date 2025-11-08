@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 /// Measures the intrinsic size of a popup widget **off-screen** without

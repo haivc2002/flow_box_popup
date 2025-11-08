@@ -52,51 +52,44 @@ Defines the visual styling for both the popup and the trigger widget.
 
 ---
 
+## Demo
+
+<p align="center">
+  <video src="https://raw.githubusercontent.com/haivc2002/flow_box_popup/main/demo/Screen_recording_20251108_143215.mov"
+         autoplay
+         loop
+         muted
+         playsinline
+         width="300"
+         style="border-radius:12px;">
+  </video>
+  <br><b>Auto-loop demo video</b>
+</p>
+
 ## 💡 Example Usage
 
 ```dart
-FlowBoxPopup(
-  duration: const Duration(milliseconds: 400),
-  curve: Curves.easeOutBack,
-  childDecoration: FlowPopupDecoration(
-    color: Colors.white,
-    radius: BorderRadius.circular(12),
-    boxShadows: BoxShadow(
-      color: Colors.black26,
-      blurRadius: 8,
-      offset: Offset(0, 4),
-    ),
-  ),
-  popDecoration: FlowPopupDecoration(
-    color: Colors.white,
-    radius: BorderRadius.circular(16),
-    boxShadows: BoxShadow(
-      color: Colors.black38,
-      blurRadius: 12,
-      offset: Offset(0, 6),
-    ),
-  ),
-  child: Row(
-    mainAxisSize: MainAxisSize.min,
-    children: const [
-      Icon(Icons.info_outline),
-      SizedBox(width: 8),
-      Text("Show popup"),
-    ],
-  ),
-  popBuilder: (context) => Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      const Text(
-        "This is the popup content!",
-        style: TextStyle(fontSize: 16),
-      ),
-      const SizedBox(height: 12),
-      ElevatedButton(
-        onPressed: () => Navigator.of(context).pop(),
-        child: const Text("Close"),
-      ),
-    ],
-  ),
-)
-```# flow_box_popup
+Scaffold(
+        backgroundColor: Colors.white,
+        body: Column(
+          children: [
+            SizedBox(height: 100),
+            Center(
+              child: FlowBoxPopup(
+                childDecoration: FlowPopupDecoration(color: Colors.black),
+                popDecoration: FlowPopupDecoration(color: Colors.white, radius: BorderRadius.circular(20)),
+                popBuilder: (context) {
+                  return Text("A smooth animated popup that automatically expands based on its content and adjusts its position when the keyboard appears.");
+                },
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(CupertinoIcons.info, color: Colors.white),
+                  const SizedBox(width: 10),
+                  Text("Info Package", style: TextStyle(color: Colors.white))
+                ]),
+              ),
+            ),
+
+          ],
+        ),
+      )
+```

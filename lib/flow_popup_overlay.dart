@@ -114,26 +114,33 @@ class FlowPopupOverlay extends StatelessWidget {
               top: top,
               width: size.width,
               height: height,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: decoration.color,
-                  borderRadius: decoration.radius,
-                  boxShadow: [decoration.boxShadows],
-                  border: decoration.border,
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  animationDuration: Duration.zero,
-                  child: ClipRect(
+              child: RepaintBoundary(
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: decoration.color,
+                    borderRadius: decoration.radius,
+                    boxShadow: [decoration.boxShadows],
+                    border: decoration.border,
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    animationDuration: Duration.zero,
                     child: OverflowBox(
-                      maxHeight: screenHeight * 0.6,
-                      maxWidth: screenWidth * 0.8,
+                      maxHeight: double.infinity,
+                      maxWidth: double.infinity,
                       alignment: Alignment.topCenter,
-                      child: Padding(
-                        padding: decoration.padding,
-                        child: Opacity(
-                          opacity: animation.value,
-                          child: popBuilder(context),
+                      child: Center(
+                        child: SizedBox(
+                          width: screenWidth * 0.8,
+                          height: height,
+                          child: Padding(
+                            padding: decoration.padding,
+                            child: Opacity(
+                              opacity: animation.value,
+                              child: popBuilder(context),
+                            ),
+                          ),
                         ),
                       ),
                     ),
