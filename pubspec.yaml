@@ -1,6 +1,6 @@
 name: flow_box_popup
 description: "A smooth popup box with fluid animations. It auto-adjusts its height to fit content and slides up gracefully when the virtual keyboard appears."
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/haivc2002/flow_box_popup
 repository: https://github.com/haivc2002/flow_box_popup
 issue_tracker: https://github.com/haivc2002/flow_box_popup/issues
