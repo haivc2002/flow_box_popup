@@ -55,15 +55,10 @@ Defines the visual styling for both the popup and the trigger widget.
 ## Demo
 
 <p align="center">
-  <video src="https://raw.githubusercontent.com/haivc2002/flow_box_popup/main/demo/Screen_recording_20251108_143215.mov"
-         autoplay
-         loop
-         muted
-         playsinline
-         width="300"
-         style="border-radius:12px;">
-  </video>
-  <br><b>Auto-loop demo video</b>
+  <img src="https://raw.githubusercontent.com/haivc2002/flow_box_popup/main/demo/demo_animation.gif"
+       width="300"
+       style="border-radius:12px;" />
+  <br><b>Auto-loop demo animation</b>
 </p>
 
 ## 💡 Example Usage
