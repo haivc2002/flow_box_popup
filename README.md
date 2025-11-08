@@ -5,6 +5,15 @@ It provides elegant transitions, flexible decoration customization (radius, bord
 
 ---
 
+## Demo
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/haivc2002/flow_box_popup/main/demo/demo.gif"
+       width="300"
+       style="border-radius:12px;" />
+  <br><b>Auto-loop demo animation</b>
+</p>
+
 ## 🚀 Features
 
 ✅ Smooth popup transition from a source widget (child).  
@@ -51,15 +60,6 @@ Defines the visual styling for both the popup and the trigger widget.
 | `padding` | `EdgeInsetsGeometry` | Inner padding. |
 
 ---
-
-## Demo
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/haivc2002/flow_box_popup/main/demo/demo.gif"
-       width="300"
-       style="border-radius:12px;" />
-  <br><b>Auto-loop demo animation</b>
-</p>
 
 ## 💡 Example Usage
 
