@@ -229,6 +229,7 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
                 color: _childDecoration.color,
                 boxShadow: [_childDecoration.boxShadows],
                 border: _childDecoration.border,
+                borderRadius: _childDecoration.radius
               ),
               child: Padding(
                 padding: _childDecoration.padding,
