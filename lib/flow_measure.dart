@@ -1,18 +1,12 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
-/// Measures the intrinsic size of a popup widget **off-screen** without
-/// displaying it to the user.
+/// Measures the rendered size of a popup widget **off-screen**.
 ///
-/// This is useful when you need to know a widget's rendered dimensions
-/// before actually positioning or animating it in the visible overlay.
+/// Temporarily inserts the widget into the [Overlay] at a hidden position,
+/// waits one frame for layout, then reads the resulting [RenderBox.size].
+/// The measurement entry is removed immediately afterward.
 ///
-/// Internally, it temporarily inserts the widget into the [Overlay] at an
-/// off-screen position, waits for a frame to complete, then reads its
-/// [RenderBox.size].
-///
-/// Returns the rendered [Size] of the popup content after padding.
+/// Returns the laid-out [Size] of the content (including padding).
 ///
 /// Example usage:
 /// ```dart
@@ -36,14 +30,13 @@ Future<Size> measurePopupContent({
   /// The maximum width constraint used during measurement.
   required double maxWidth,
 }) async {
-  /// A unique key to locate the render object of the test widget.
+  /// Key to locate the render object for size measurement.
   final measureKey = GlobalKey();
 
-  /// Access the nearest overlay from the provided context.
+  /// Access the nearest [Overlay] for temporary insertion.
   final overlay = Overlay.of(context);
 
-  /// Create an off-screen overlay entry at a far negative coordinate.
-  /// This prevents it from appearing on-screen during measurement.
+  /// Off-screen overlay entry used purely for layout measurement.
   final measureEntry = OverlayEntry(
     builder: (_) => Positioned(
       left: -10000,
@@ -60,19 +53,19 @@ Future<Size> measurePopupContent({
     ),
   );
 
-  /// Insert the entry temporarily into the overlay for layout measurement.
+  /// Insert temporarily for one frame to trigger layout.
   overlay.insert(measureEntry);
 
-  /// Wait until the current frame completes so layout information is available.
+  /// Wait for layout to complete.
   await WidgetsBinding.instance.endOfFrame;
 
-  /// Retrieve the RenderBox to read its final laid-out size.
-  final renderBox = measureKey.currentContext!.findRenderObject() as RenderBox;
-  final size = renderBox.size;
-
-  /// Remove the measurement entry immediately after obtaining the size.
-  measureEntry.remove();
-
-  /// Return the measured size to the caller.
-  return size;
+  try {
+    /// Read the final laid-out size from the render tree.
+    final renderBox =
+        measureKey.currentContext!.findRenderObject() as RenderBox;
+    return renderBox.size;
+  } finally {
+    /// Clean up: remove the measurement entry regardless of success or failure.
+    measureEntry.remove();
+  }
 }

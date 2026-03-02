@@ -2,21 +2,23 @@ import 'package:flow_box_popup/flow_popup_animator.dart';
 import 'package:flow_box_popup/flow_popup_overlay.dart';
 import 'package:flutter/material.dart';
 
-import 'flow_popup_decoration.dart';
 import 'flow_measure.dart';
 
-/// A smart animated popup widget that expands from a child widget into
-/// a floating overlay.
+/// A smart animated popup widget that morphs from a child widget into
+/// a floating overlay with smooth decoration transitions.
 ///
-/// This widget is ideal for contextual menus, tooltips, or detail previews
-/// that appear above existing content while keeping smooth transition
-/// animations and keyboard awareness.
+/// Ideal for contextual menus, tooltips, or detail previews that expand
+/// above existing content with animated size, position, and decoration
+/// interpolation. Automatically adjusts when the keyboard appears.
+///
+/// Uses [BoxDecoration] for styling both the child and popup states,
+/// enabling seamless lerp transitions via [BoxDecoration.lerp].
 ///
 /// Example:
 /// ```dart
 /// FlowBoxPopup(
 ///   child: Text("Tap Me"),
-///   popBuilder: (context) => ListView(
+///   popupBuilder: (context) => ListView(
 ///     shrinkWrap: true,
 ///     children: [TextField(), SizedBox(height: 300)],
 ///   ),
@@ -26,34 +28,33 @@ class FlowBoxPopup extends StatefulWidget {
   /// The child widget that triggers the popup when tapped.
   final Widget child;
 
-  /// The decoration applied to the child before expansion.
-  final FlowPopupDecoration? childDecoration;
+  /// The [BoxDecoration] applied to the child widget in its resting state.
+  /// Falls back to a theme-based default if `null`.
+  final BoxDecoration? boxDecoration;
 
-  /// The decoration applied to the popup after expansion.
-  final FlowPopupDecoration? popDecoration;
+  /// The [BoxDecoration] applied to the popup in its fully expanded state.
+  /// Falls back to a theme-based default if `null`.
+  final BoxDecoration? popupDecoration;
+
+  /// Inner padding for the child widget content.
+  final EdgeInsetsGeometry boxPadding;
 
   /// The duration of the popup animation.
   final Duration duration;
 
-  /// The animation curve for showing the popup.
-  final Curve? curve;
-
-  /// The reverse curve for dismissing the popup.
-  final Curve? reverseCurve;
-
-  /// The builder function for constructing the popup content.
-  final Widget Function(BuildContext context) popBuilder;
+  /// Builder that constructs the popup's inner content when expanded.
+  final Widget Function(BuildContext context) popupBuilder;
+  /// The color of the dimmed background behind the popup overlay.
   final Color barrierColor;
 
   FlowBoxPopup({
     super.key,
     required this.child,
-    this.childDecoration,
-    this.popDecoration,
+    this.boxDecoration,
+    this.popupDecoration,
+    this.boxPadding = const EdgeInsets.all(8.0),
     this.duration = const Duration(milliseconds: 350),
-    this.curve,
-    this.reverseCurve,
-    required this.popBuilder,
+    required this.popupBuilder,
     Color? barrierColor
   }) : barrierColor = barrierColor ?? Colors.black.withValues(alpha: 0.6);
 
@@ -61,8 +62,8 @@ class FlowBoxPopup extends StatefulWidget {
   State<FlowBoxPopup> createState() => _FlowBoxPopupState();
 }
 
-/// Internal state class that handles popup measurement, overlay insertion,
-/// and animation lifecycle.
+/// Manages popup lifecycle: measuring content size off-screen,
+/// inserting/removing overlay entries, and driving the morph animation.
 class _FlowBoxPopupState extends State<FlowBoxPopup>
     with SingleTickerProviderStateMixin {
   /// Global key used to locate the child widget's render box.
@@ -74,9 +75,11 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
   /// The active overlay entry containing the popup.
   OverlayEntry? _overlayEntry;
 
-  /// Cached resolved decorations for child and popup states.
-  late FlowPopupDecoration _childDecoration;
-  late FlowPopupDecoration _popDecoration;
+  /// Resolved [BoxDecoration] for the child (resting) state.
+  late BoxDecoration _childDecoration;
+
+  /// Resolved [BoxDecoration] for the popup (expanded) state.
+  late BoxDecoration _popDecoration;
 
   /// Whether the child is hidden during popup display.
   bool _isChildHidden = false;
@@ -94,38 +97,40 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
     if (oldWidget.duration != widget.duration) {
       _controller.duration = widget.duration;
     }
+
+    if (oldWidget.boxDecoration != widget.boxDecoration ||
+        oldWidget.popupDecoration != widget.popupDecoration) {
+      _resolveDecorations(context);
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     _closePopup(immediate: true);
+    _controller.dispose();
     super.dispose();
   }
 
-  /// Resolves decorations by merging theme defaults and widget overrides.
+  /// Resolves [BoxDecoration]s by applying widget overrides or theme-based defaults.
   void _resolveDecorations(BuildContext context) {
     final theme = Theme.of(context);
     final defaultColor = theme.colorScheme.surfaceDim;
     const defaultRadius = BorderRadius.all(Radius.circular(10));
-    const defaultPadding = EdgeInsets.all(8.0);
 
-    _childDecoration = widget.childDecoration ??
-        FlowPopupDecoration(
+    _childDecoration = widget.boxDecoration ??
+        BoxDecoration(
           color: defaultColor,
-          radius: defaultRadius,
-          padding: defaultPadding,
+          borderRadius: defaultRadius,
         );
 
-    _popDecoration = widget.popDecoration ??
-        FlowPopupDecoration(
+    _popDecoration = widget.popupDecoration ??
+        BoxDecoration(
           color: defaultColor,
-          radius: defaultRadius,
-          padding: defaultPadding,
+          borderRadius: defaultRadius,
         );
   }
 
-  /// Displays the popup overlay and animates its expansion.
+  /// Measures popup content, creates an [OverlayEntry], and animates the morph transition.
   Future<void> _showPopup() async {
     if (_overlayEntry != null) return;
 
@@ -141,8 +146,8 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
 
     final contentSize = await measurePopupContent(
       context: context,
-      builder: widget.popBuilder,
-      padding: _popDecoration.padding,
+      builder: widget.popupBuilder,
+      padding: EdgeInsetsGeometry.all(8.0),
       maxWidth: maxWidth,
     );
 
@@ -155,11 +160,7 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
       (screenSize.height - popupHeight) / 2,
     );
 
-    final animator = FlowPopupAnimator(
-      parent: _controller,
-      curve: widget.curve ?? const Cubic(1.0, 0.155, 0.155, 1.0),
-      reverseCurve: widget.reverseCurve,
-    );
+    final animator = FlowPopupAnimator(parent: _controller);
 
     _overlayEntry = OverlayEntry(
       builder: (_) => FlowPopupOverlay(
@@ -170,7 +171,8 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
         targetSize: Size(popupWidth, popupHeight),
         childDecoration: _childDecoration,
         popDecoration: _popDecoration,
-        popBuilder: widget.popBuilder,
+        childPadding: widget.boxPadding,
+        popBuilder: widget.popupBuilder,
         barrierColor: widget.barrierColor,
         onClose: _closePopup,
       ),
@@ -180,7 +182,7 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
     await _controller.forward(from: 0.0);
   }
 
-  /// Closes the popup overlay with optional immediate removal.
+  /// Reverses the morph animation and removes the overlay. Set [immediate] to skip animation.
   Future<void> _closePopup({bool immediate = false}) async {
     if (_overlayEntry == null) return;
 
@@ -208,9 +210,16 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
     _resolveDecorations(context);
   }
 
+  /// Safely extracts [BorderRadius] from a [BoxDecoration], returning [BorderRadius.zero] if unresolvable.
+  BorderRadius _extractBorderRadius(BoxDecoration decoration) {
+    final br = decoration.borderRadius;
+    if (br is BorderRadius) return br;
+    return BorderRadius.zero;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // _resolveDecorations(context);
+    _resolveDecorations(context);
 
     return PopScope(
       canPop: !_isChildHidden,
@@ -220,19 +229,18 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
       child: GestureDetector(
         key: _childKey,
         onTap: _showPopup,
-        child: Opacity(
-          opacity: _isChildHidden ? 0 : 1,
+        child: Visibility(
+          visible: !_isChildHidden,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
           child: ClipRRect(
-            borderRadius: _childDecoration.radius,
+            borderRadius: _extractBorderRadius(_childDecoration),
+            clipBehavior: Clip.none,
             child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: _childDecoration.color,
-                boxShadow: [_childDecoration.boxShadows],
-                border: _childDecoration.border,
-                borderRadius: _childDecoration.radius
-              ),
+              decoration: _childDecoration,
               child: Padding(
-                padding: _childDecoration.padding,
+                padding: widget.boxPadding,
                 child: AnimatedOpacity(
                   opacity: _isChildHidden ? 0 : 1,
                   duration: const Duration(milliseconds: 150),
