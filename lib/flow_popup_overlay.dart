@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 /// Interpolates position, size, and [BoxDecoration] between the child
 /// and popup states using [BoxDecoration.lerp] for smooth visual transitions.
 ///
-/// Designed to be used inside an [OverlayEntry]. Automatically repositions
+/// Designed to be used inside a [PageRoute]. Automatically repositions
 /// and resizes when the software keyboard appears.
 class FlowPopupOverlay extends StatelessWidget {
   /// The animation driving the morph transition (typically a [CurvedAnimation]).
@@ -121,23 +121,30 @@ class FlowPopupOverlay extends StatelessWidget {
               width: size.width,
               height: height,
               child: RepaintBoundary(
-                child: Container(
-                  clipBehavior: Clip.antiAlias,
-                  decoration: decoration,
-                  child: Material(
-                    color: Colors.transparent,
-                    animationDuration: Duration.zero,
-                    child: OverflowBox(
-                      maxHeight: double.infinity,
-                      maxWidth: double.infinity,
-                      alignment: Alignment.topCenter,
-                      child: Center(
-                        child: SizedBox(
-                          width: screenWidth * 0.8,
-                          height: height,
-                          child: Opacity(
-                            opacity: animation.value,
-                            child: popBuilder(context),
+                child: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.identity()
+                    ..setEntry(3, 2, 0.002) // perspective
+                    ..rotateX(0.2) // top xa, bottom gần
+                    ..rotateY(-0.4),
+                  child: Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration: decoration,
+                    child: Material(
+                      color: Colors.transparent,
+                      animationDuration: Duration.zero,
+                      child: OverflowBox(
+                        maxHeight: double.infinity,
+                        maxWidth: double.infinity,
+                        alignment: Alignment.topCenter,
+                        child: Center(
+                          child: SizedBox(
+                            width: screenWidth * 0.8,
+                            height: height,
+                            child: Opacity(
+                              opacity: animation.value,
+                              child: popBuilder(context),
+                            ),
                           ),
                         ),
                       ),

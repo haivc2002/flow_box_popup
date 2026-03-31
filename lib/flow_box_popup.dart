@@ -63,17 +63,10 @@ class FlowBoxPopup extends StatefulWidget {
 }
 
 /// Manages popup lifecycle: measuring content size off-screen,
-/// inserting/removing overlay entries, and driving the morph animation.
-class _FlowBoxPopupState extends State<FlowBoxPopup>
-    with SingleTickerProviderStateMixin {
+/// using [Navigator.push] to show the popup route, and driving morph animation.
+class _FlowBoxPopupState extends State<FlowBoxPopup> {
   /// Global key used to locate the child widget's render box.
   final GlobalKey _childKey = GlobalKey();
-
-  /// Controller that drives the popup animation.
-  late AnimationController _controller;
-
-  /// The active overlay entry containing the popup.
-  OverlayEntry? _overlayEntry;
 
   /// Resolved [BoxDecoration] for the child (resting) state.
   late BoxDecoration _childDecoration;
@@ -87,16 +80,11 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: widget.duration);
   }
 
   @override
   void didUpdateWidget(covariant FlowBoxPopup oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.duration != widget.duration) {
-      _controller.duration = widget.duration;
-    }
 
     if (oldWidget.boxDecoration != widget.boxDecoration ||
         oldWidget.popupDecoration != widget.popupDecoration) {
@@ -106,8 +94,6 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
 
   @override
   void dispose() {
-    _closePopup(immediate: true);
-    _controller.dispose();
     super.dispose();
   }
 
@@ -130,9 +116,9 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
         );
   }
 
-  /// Measures popup content, creates an [OverlayEntry], and animates the morph transition.
+  /// Measures popup content and pushes a [PageRoute] to display the popup.
   Future<void> _showPopup() async {
-    if (_overlayEntry != null) return;
+    if (_isChildHidden) return;
 
     setState(() => _isChildHidden = true);
 
@@ -151,8 +137,7 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
       maxWidth: maxWidth,
     );
 
-    final double popupHeight =
-    (contentSize.height).clamp(0, maxHeight);
+    final double popupHeight = (contentSize.height).clamp(0, maxHeight);
     final popupWidth = maxWidth;
 
     final targetPos = Offset(
@@ -160,48 +145,40 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
       (screenSize.height - popupHeight) / 2,
     );
 
-    final animator = FlowPopupAnimator(parent: _controller);
+    if (mounted) {
+      final route = PageRouteBuilder(
+        opaque: false,
+        barrierColor: Colors.transparent,
+        barrierLabel: "Dismiss",
+        transitionDuration: widget.duration,
+        reverseTransitionDuration: widget.duration,
+        pageBuilder: (context, animation, secondaryAnimation) {
+          final animator = FlowPopupAnimator(parent: animation);
+          return FlowPopupOverlay(
+            animation: animator,
+            startPosition: childPos,
+            targetPosition: targetPos,
+            startSize: childSize,
+            targetSize: Size(popupWidth, popupHeight),
+            childDecoration: _childDecoration,
+            popDecoration: _popDecoration,
+            childPadding: widget.boxPadding,
+            popBuilder: widget.popupBuilder,
+            barrierColor: widget.barrierColor,
+            onClose: () => Navigator.of(context).pop(),
+          );
+        },
+      );
 
-    _overlayEntry = OverlayEntry(
-      builder: (_) => FlowPopupOverlay(
-        animation: animator,
-        startPosition: childPos,
-        targetPosition: targetPos,
-        startSize: childSize,
-        targetSize: Size(popupWidth, popupHeight),
-        childDecoration: _childDecoration,
-        popDecoration: _popDecoration,
-        childPadding: widget.boxPadding,
-        popBuilder: widget.popupBuilder,
-        barrierColor: widget.barrierColor,
-        onClose: _closePopup,
-      ),
-    );
+      Navigator.of(context).push(route);
 
-    if(mounted) Overlay.of(context).insert(_overlayEntry!);
-    await _controller.forward(from: 0.0);
-  }
-
-  /// Reverses the morph animation and removes the overlay. Set [immediate] to skip animation.
-  Future<void> _closePopup({bool immediate = false}) async {
-    if (_overlayEntry == null) return;
-
-    if (immediate) {
-      _overlayEntry?.remove();
-    } else {
-      final viewInsets = WidgetsBinding.instance.platformDispatcher.views.first.viewInsets;
-      final keyboardHeight = viewInsets.bottom / WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
-
-      if (keyboardHeight > 0) {
-        FocusManager.instance.primaryFocus?.unfocus();
-        return;
-      }
-      await _controller.reverse();
-      _overlayEntry?.remove();
+      // Wait for the close animation to fully finish before showing the original child
+      route.animation!.addStatusListener((status) {
+        if (status == AnimationStatus.dismissed) {
+          if (mounted) setState(() => _isChildHidden = false);
+        }
+      });
     }
-
-    _overlayEntry = null;
-    if (mounted) setState(() => _isChildHidden = false);
   }
 
   @override
@@ -221,31 +198,25 @@ class _FlowBoxPopupState extends State<FlowBoxPopup>
   Widget build(BuildContext context) {
     _resolveDecorations(context);
 
-    return PopScope(
-      canPop: !_isChildHidden,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _closePopup();
-      },
-      child: GestureDetector(
-        key: _childKey,
-        onTap: _showPopup,
-        child: Visibility(
-          visible: !_isChildHidden,
-          maintainSize: true,
-          maintainAnimation: true,
-          maintainState: true,
-          child: ClipRRect(
-            borderRadius: _extractBorderRadius(_childDecoration),
-            clipBehavior: Clip.none,
-            child: DecoratedBox(
-              decoration: _childDecoration,
-              child: Padding(
-                padding: widget.boxPadding,
-                child: AnimatedOpacity(
-                  opacity: _isChildHidden ? 0 : 1,
-                  duration: const Duration(milliseconds: 150),
-                  child: widget.child,
-                ),
+    return GestureDetector(
+      key: _childKey,
+      onTap: _showPopup,
+      child: Visibility(
+        visible: !_isChildHidden,
+        maintainSize: true,
+        maintainAnimation: true,
+        maintainState: true,
+        child: ClipRRect(
+          borderRadius: _extractBorderRadius(_childDecoration),
+          clipBehavior: Clip.none,
+          child: DecoratedBox(
+            decoration: _childDecoration,
+            child: Padding(
+              padding: widget.boxPadding,
+              child: AnimatedOpacity(
+                opacity: _isChildHidden ? 0 : 1,
+                duration: const Duration(milliseconds: 150),
+                child: widget.child,
               ),
             ),
           ),

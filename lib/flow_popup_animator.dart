@@ -22,7 +22,7 @@ class FlowPopupAnimator extends CurvedAnimation {
   /// - [curve]: Forward easing curve. Defaults to a soft overshoot cubic.
   /// - [reverseCurve]: Reverse easing curve. Defaults to the same as [curve].
   FlowPopupAnimator({
-    required AnimationController super.parent,
+    required super.parent,
     super.curve = const Cubic(1.0, 0.155, 0.155, 1.0),
     Curve reverseCurve = const Cubic(1.0, 0.155, 0.155, 1.0),
   }) : super(reverseCurve: reverseCurve);
