@@ -18,3 +18,6 @@
 ## 1.0.1
 - Improve the animation effects for a more seamless experience.
 - Optimize popup closing: support dismiss via Navigator.pop(context)
+
+## 1.0.2
+- Add example

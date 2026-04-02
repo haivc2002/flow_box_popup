@@ -149,45 +149,6 @@ class MyPopup extends StatelessWidget {
                 Text("Info Package", style: TextStyle(color: Colors.white)),
               ]),
             ),
-            FlowBoxPopup(
-                boxDecoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(image: NetworkImage("https://instagram.fhan15-2."
-                        "fna.fbcdn.net/v/t51.82787-19/660623649_18092"
-                        "369936471123_8526917351863756513_n.jpg?efg=ey"
-                        "J2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLmRqYW5nby4"
-                        "5NTguYzIifQ&_nc_ht=instagram.fhan15-2.fna.fbc"
-                        "dn.net&_nc_cat=111&_nc_oc=Q6cZ2gHgRMNqI1ExUl-"
-                        "CW6HrUwv_14Tww56vzIFgia27xSLV6ApBAMGUJUmRXQWa"
-                        "rUf9LanWC-0VtU6WPpSfdM_Ur50P&_nc_ohc=emr_J2Vf"
-                        "GicQ7kNvwEEtINM&_nc_gid=Deq_J3ehTmsXBfU1UHRa7"
-                        "Q&edm=ALGbJPMBAAAA&ccb=7-5&oh=00_Af1MfVR4UjEU"
-                        "8a7VaCJAdun742dTYUtIGmQWEYIHooTs3A&oe=69D3883"
-                        "F&_nc_sid=7d3ac5"))
-                ),
-                popupDecoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(image: NetworkImage("https://instagram.fhan15-2."
-                        "fna.fbcdn.net/v/t51.82787-19/660623649_18092"
-                        "369936471123_8526917351863756513_n.jpg?efg=ey"
-                        "J2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLmRqYW5nby4"
-                        "5NTguYzIifQ&_nc_ht=instagram.fhan15-2.fna.fbc"
-                        "dn.net&_nc_cat=111&_nc_oc=Q6cZ2gHgRMNqI1ExUl-"
-                        "CW6HrUwv_14Tww56vzIFgia27xSLV6ApBAMGUJUmRXQWa"
-                        "rUf9LanWC-0VtU6WPpSfdM_Ur50P&_nc_ohc=emr_J2Vf"
-                        "GicQ7kNvwEEtINM&_nc_gid=Deq_J3ehTmsXBfU1UHRa7"
-                        "Q&edm=ALGbJPMBAAAA&ccb=7-5&oh=00_Af1MfVR4UjEU"
-                        "8a7VaCJAdun742dTYUtIGmQWEYIHooTs3A&oe=69D3883"
-                        "F&_nc_sid=7d3ac5"))
-                ),
-                popupBuilder: (context) {
-                  return AspectRatio(
-                      aspectRatio: 1,
-                      child: SizedBox(width: double.infinity)
-                  );
-                },
-                child: SizedBox(height: 50, width: 50,)
-            )
           ],
         ),
       ),
