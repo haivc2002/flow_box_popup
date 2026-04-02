@@ -24,9 +24,6 @@ Future<Size> measurePopupContent({
   /// The widget builder that returns the popup content to measure.
   required Widget Function(BuildContext) builder,
 
-  /// Padding applied around the widget when measuring its size.
-  required EdgeInsetsGeometry padding,
-
   /// The maximum width constraint used during measurement.
   required double maxWidth,
 }) async {
@@ -43,12 +40,9 @@ Future<Size> measurePopupContent({
       top: -10000,
       width: maxWidth,
       child: Material(
+        key: measureKey,
         color: Colors.transparent,
-        child: Padding(
-          key: measureKey,
-          padding: padding,
-          child: builder(context),
-        ),
+        child: builder(context),
       ),
     ),
   );

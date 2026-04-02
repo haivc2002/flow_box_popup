@@ -42,6 +42,9 @@ class FlowPopupOverlay extends StatelessWidget {
   /// The color of the dimmed barrier behind the popup.
   final Color barrierColor;
 
+  /// The original child widget to display during the initial phase of morphing.
+  final Widget triggerChild;
+
   const FlowPopupOverlay({
     super.key,
     required this.animation,
@@ -54,7 +57,8 @@ class FlowPopupOverlay extends StatelessWidget {
     required this.childPadding,
     required this.popBuilder,
     required this.onClose,
-    required this.barrierColor
+    required this.barrierColor,
+    required this.triggerChild
   });
 
   @override
@@ -121,30 +125,39 @@ class FlowPopupOverlay extends StatelessWidget {
               width: size.width,
               height: height,
               child: RepaintBoundary(
-                child: Transform(
-                  alignment: Alignment.center,
-                  transform: Matrix4.identity()
-                    ..setEntry(3, 2, 0.002) // perspective
-                    ..rotateX(0.2) // top xa, bottom gần
-                    ..rotateY(-0.4),
-                  child: Container(
-                    clipBehavior: Clip.antiAlias,
-                    decoration: decoration,
-                    child: Material(
-                      color: Colors.transparent,
-                      animationDuration: Duration.zero,
-                      child: OverflowBox(
-                        maxHeight: double.infinity,
-                        maxWidth: double.infinity,
-                        alignment: Alignment.topCenter,
-                        child: Center(
-                          child: SizedBox(
-                            width: screenWidth * 0.8,
-                            height: height,
-                            child: Opacity(
-                              opacity: animation.value,
-                              child: popBuilder(context),
-                            ),
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: decoration,
+                  child: Material(
+                    color: Colors.transparent,
+                    animationDuration: Duration.zero,
+                    child: OverflowBox(
+                      maxHeight: double.infinity,
+                      maxWidth: double.infinity,
+                      alignment: Alignment.topCenter,
+                      child: Center(
+                        child: SizedBox(
+                          width: screenWidth * 0.8,
+                          height: height,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              /// Show the original child while the popup is small
+                              if (t < 0.5)
+                                Opacity(
+                                  opacity: (1 - t * 2).clamp(0, 1),
+                                  child: Padding(
+                                    padding: childPadding,
+                                    child: Center(child: triggerChild),
+                                  ),
+                                ),
+
+                              /// Fade in the actual popup content
+                              Opacity(
+                                opacity: t,
+                                child: popBuilder(context),
+                              ),
+                            ],
                           ),
                         ),
                       ),

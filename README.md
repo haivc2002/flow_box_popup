@@ -17,11 +17,11 @@ It provides elegant transitions, flexible decoration customization (radius, bord
 ## 🚀 Features
 
 ✅ Smooth popup transition from a source widget (child).  
-✅ Fully customizable appearance: radius, shadow, border, padding, background color.  
+✅ Fully customizable appearance using standard `BoxDecoration`.  
 ✅ Automatically centers popup on screen.  
-✅ Supports closing via back button.  
+✅ Supports closing via back button or tapping the barrier.  
 ✅ Measures popup content size dynamically before showing.  
-✅ Handles keyboard visibility gracefully. 
+✅ Handles keyboard visibility gracefully (shifts and shrinks to fit). 
 
 ---
 
@@ -35,56 +35,60 @@ The main widget that manages the popup display and animation.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `child` | `Widget` | The base widget that triggers the popup when tapped. |
-| `popBuilder` | `Widget Function(BuildContext)` | Builder for the popup content. |
-| `childDecoration` | `FlowPopupDecoration?` | Custom style for the child widget. |
-| `popDecoration` | `FlowPopupDecoration?` | Custom style for the popup window. |
-| `duration` | `Duration` | Duration of the show/hide animation. |
-| `curve` | `Curve?` | Curve used for the forward animation. |
-| `reverseCurve` | `Curve?` | Curve used for the reverse animation. |
-
----
-
-### `FlowPopupDecoration`
-
-Defines the visual styling for both the popup and the trigger widget.
-
-#### Parameters
-
-| Name | Type | Description |
-|------|------|-------------|
-| `color` | `Color?` | Background color. |
-| `border` | `Border?` | Optional border. |
-| `boxShadows` | `BoxShadow` | Shadow applied to the container. |
-| `radius` | `BorderRadius` | Corner radius. |
-| `padding` | `EdgeInsetsGeometry` | Inner padding. |
+| `child` | `Widget` | **Required.** The base widget that triggers the popup when tapped. |
+| `popupBuilder` | `Widget Function(BuildContext)` | **Required.** Builder for the popup content. |
+| `boxDecoration` | `BoxDecoration?` | Custom style for the child widget in its resting state. |
+| `popupDecoration` | `BoxDecoration?` | Custom style for the popup window in its expanded state. |
+| `boxPadding` | `EdgeInsetsGeometry` | Inner padding for the child widget content (Default: `EdgeInsets.all(8.0)`). |
+| `duration` | `Duration` | Duration of the morph animation (Default: `350ms`). |
+| `barrierColor` | `Color?` | The color of the dimmed background behind the popup. |
 
 ---
 
 ## 💡 Example Usage
 
 ```dart
-Scaffold(
-        backgroundColor: Colors.white,
-        body: Column(
-          children: [
-            SizedBox(height: 100),
-            Center(
-              child: FlowBoxPopup(
-                childDecoration: FlowPopupDecoration(color: Colors.black),
-                popDecoration: FlowPopupDecoration(color: Colors.white, radius: BorderRadius.circular(20)),
-                popBuilder: (context) {
-                  return Text("A smooth animated popup that automatically expands based on its content and adjusts its position when the keyboard appears.");
-                },
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(CupertinoIcons.info, color: Colors.white),
-                  const SizedBox(width: 10),
-                  Text("Info Package", style: TextStyle(color: Colors.white))
-                ]),
-              ),
-            ),
-
-          ],
-        ),
+FlowBoxPopup(
+  duration: const Duration(milliseconds: 500),
+  boxDecoration: BoxDecoration(
+    color: Colors.blueAccent,
+    borderRadius: BorderRadius.circular(16),
+  ),
+  popupDecoration: BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(24),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.2),
+        blurRadius: 20,
+        spreadRadius: 5,
       )
+    ],
+  ),
+  boxPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  popupBuilder: (context) => Padding(
+    padding: const EdgeInsets.all(20.0),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text(
+          'Animated Popup',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        const Text('This popup expands smoothly from the trigger widget.'),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
+      ],
+    ),
+  ),
+  child: const Text(
+    "Tap to Expand",
+    style: TextStyle(color: Colors.white),
+  ),
+)
 ```
+

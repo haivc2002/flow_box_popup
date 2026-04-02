@@ -120,8 +120,6 @@ class _FlowBoxPopupState extends State<FlowBoxPopup> {
   Future<void> _showPopup() async {
     if (_isChildHidden) return;
 
-    setState(() => _isChildHidden = true);
-
     final screenSize = MediaQuery.of(context).size;
     final maxWidth = screenSize.width * 0.8;
     final maxHeight = screenSize.height * 0.6;
@@ -133,7 +131,6 @@ class _FlowBoxPopupState extends State<FlowBoxPopup> {
     final contentSize = await measurePopupContent(
       context: context,
       builder: widget.popupBuilder,
-      padding: EdgeInsetsGeometry.all(8.0),
       maxWidth: maxWidth,
     );
 
@@ -144,7 +141,6 @@ class _FlowBoxPopupState extends State<FlowBoxPopup> {
       (screenSize.width - popupWidth) / 2,
       (screenSize.height - popupHeight) / 2,
     );
-
     if (mounted) {
       final route = PageRouteBuilder(
         opaque: false,
@@ -165,12 +161,16 @@ class _FlowBoxPopupState extends State<FlowBoxPopup> {
             childPadding: widget.boxPadding,
             popBuilder: widget.popupBuilder,
             barrierColor: widget.barrierColor,
+            triggerChild: widget.child,
             onClose: () => Navigator.of(context).pop(),
           );
         },
       );
 
       Navigator.of(context).push(route);
+      Future.delayed(const Duration(milliseconds: 50), () {
+        if (mounted) setState(() => _isChildHidden = true);
+      });
 
       // Wait for the close animation to fully finish before showing the original child
       route.animation!.addStatusListener((status) {
@@ -213,11 +213,7 @@ class _FlowBoxPopupState extends State<FlowBoxPopup> {
             decoration: _childDecoration,
             child: Padding(
               padding: widget.boxPadding,
-              child: AnimatedOpacity(
-                opacity: _isChildHidden ? 0 : 1,
-                duration: const Duration(milliseconds: 150),
-                child: widget.child,
-              ),
+              child: widget.child,
             ),
           ),
         ),

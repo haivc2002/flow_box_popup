@@ -14,3 +14,7 @@
 - Change the name from `popDecoration` to `popupDecoration`.
 - Change the name from `popBuilder` to `popupBuilder`.
 - Change the name from `childPadding` to `boxPadding` and remove popPadding.
+
+## 1.0.1
+- Improve the animation effects for a more seamless experience.
+- Optimize popup closing: support dismiss via Navigator.pop(context)
