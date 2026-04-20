@@ -76,7 +76,6 @@ class FlowPopupOverlay extends StatelessWidget {
 
         final mediaQuery = MediaQuery.of(context);
         final screenHeight = mediaQuery.size.height;
-        final screenWidth = mediaQuery.size.width;
         final keyboardHeight = mediaQuery.viewInsets.bottom;
 
         double top = position.dy;
@@ -134,28 +133,46 @@ class FlowPopupOverlay extends StatelessWidget {
                     child: OverflowBox(
                       maxHeight: double.infinity,
                       maxWidth: double.infinity,
-                      alignment: Alignment.topCenter,
+                      alignment: Alignment.center,
                       child: Center(
                         child: SizedBox(
-                          width: screenWidth * 0.8,
-                          height: height,
+                          width: targetSize.width,
+                          height: targetSize.height,
                           child: Stack(
-                            fit: StackFit.expand,
+                            alignment: Alignment.center,
                             children: [
                               /// Show the original child while the popup is small
                               if (t < 0.5)
                                 Opacity(
                                   opacity: (1 - t * 2).clamp(0, 1),
-                                  child: Padding(
-                                    padding: childPadding,
-                                    child: Center(child: triggerChild),
+                                  child: OverflowBox(
+                                    maxWidth: double.infinity,
+                                    maxHeight: double.infinity,
+                                    child: Center(
+                                      child: SizedBox.fromSize(
+                                        size: startSize,
+                                        child: Padding(
+                                          padding: childPadding,
+                                          child: triggerChild,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
 
                               /// Fade in the actual popup content
                               Opacity(
                                 opacity: t,
-                                child: popBuilder(context),
+                                child: OverflowBox(
+                                  maxWidth: double.infinity,
+                                  maxHeight: double.infinity,
+                                  child: Center(
+                                    child: SizedBox.fromSize(
+                                      size: targetSize,
+                                      child: popBuilder(context),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),

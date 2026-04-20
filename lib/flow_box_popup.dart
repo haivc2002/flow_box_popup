@@ -168,7 +168,7 @@ class _FlowBoxPopupState extends State<FlowBoxPopup> {
       );
 
       Navigator.of(context).push(route);
-      Future.delayed(const Duration(milliseconds: 50), () {
+      Future.delayed(const Duration(milliseconds: 30), () {
         if (mounted) setState(() => _isChildHidden = true);
       });
 
