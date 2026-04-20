@@ -19,5 +19,8 @@
 - Improve the animation effects for a more seamless experience.
 - Optimize popup closing: support dismiss via Navigator.pop(context)
 
-## 1.0.2
-- Add example
+## 1.0.3
+- Improved morph animation effects:
+- Fixed text wrapping issues when the popup is activated by fixing the layout of the trigger widget.
+- Synchronized alignment eliminates content jerking during size changes.
+- Optimized transition experience, maintaining a consistent and smooth interface from box to popup state.
