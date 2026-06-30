@@ -24,3 +24,7 @@
 - Fixed text wrapping issues when the popup is activated by fixing the layout of the trigger widget.
 - Synchronized alignment eliminates content jerking during size changes.
 - Optimized transition experience, maintaining a consistent and smooth interface from box to popup state.
+
+## 1.0.4
+- Optimize memory release
+- Resolving the overlay theme source issue

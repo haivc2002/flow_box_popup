@@ -61,5 +61,6 @@ Future<Size> measurePopupContent({
   } finally {
     /// Clean up: remove the measurement entry regardless of success or failure.
     measureEntry.remove();
+    measureEntry.dispose();
   }
 }

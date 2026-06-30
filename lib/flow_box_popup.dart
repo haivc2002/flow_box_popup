@@ -142,6 +142,10 @@ class _FlowBoxPopupState extends State<FlowBoxPopup> {
       (screenSize.height - popupHeight) / 2,
     );
     if (mounted) {
+      final CapturedThemes themes = InheritedTheme.capture(
+          from: context,
+          to: Navigator.of(context).context
+      );
       final route = PageRouteBuilder(
         opaque: false,
         barrierColor: Colors.transparent,
@@ -150,7 +154,7 @@ class _FlowBoxPopupState extends State<FlowBoxPopup> {
         reverseTransitionDuration: widget.duration,
         pageBuilder: (context, animation, secondaryAnimation) {
           final animator = FlowPopupAnimator(parent: animation);
-          return FlowPopupOverlay(
+          return themes.wrap(FlowPopupOverlay(
             animation: animator,
             startPosition: childPos,
             targetPosition: targetPos,
@@ -163,7 +167,7 @@ class _FlowBoxPopupState extends State<FlowBoxPopup> {
             barrierColor: widget.barrierColor,
             triggerChild: widget.child,
             onClose: () => Navigator.of(context).pop(),
-          );
+          ));
         },
       );
 
